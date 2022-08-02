@@ -1,6 +1,13 @@
-# Getting Started with Create React App
+# Getting Started with Logo Design App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+
+## Introduction
+
+![alt text for screen readers](image.png "Text to show on mouseover")
+
+The very first dynamic logo creator engine, with amazing editable built-in functions. No need of graphic design knowledge, just play!
 
 ## Available Scripts
 
