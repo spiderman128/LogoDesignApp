@@ -5,7 +5,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Introduction
 
-![alt text for screen readers](image.png "Text to show on mouseover")
+![alt text for screen readers](https://raw.githubusercontent.com/CleanDevelop/LogoDesignApp/master/image.png "Text to show on mouseover")
 
 The very first dynamic logo creator engine, with amazing editable built-in functions. No need of graphic design knowledge, just play!
 
