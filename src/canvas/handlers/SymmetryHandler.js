@@ -31,15 +31,24 @@ class SymmetryHandler extends BaseHandler {
     if (items.indexOf(item) !== 0) {
       items.unshift(items.splice(items.indexOf(item), 1)[0]);
     }
-    for (let i = 0; i < items.length; i++) {
+    let count = item.mirror ? items.length / 2 : items.length;
+    for (let i = 0; i < count; i++) {
       if (items[i] !== item) {
         // handle single
         items[i].copyAttributes(item);
         items[i].copyContent(item);
         items[i].position = vector.add(center);
-        items[i].rotate((360 / items.length) * i);
+        items[i].rotate((360 / count) * i);
       }
-      vector.angle += 360 / items.length;
+      if(item.mirror) {
+        items[i + count].copyAttributes(item);
+        items[i + count].copyContent(item);
+        items[i + count].position = center.add(vector);
+        items[i + count].rotate((360 / items.length * 2) * i);
+        items[i + count].flip();
+        items[i + count].position.x = 2 * center.x - items[i].position.x;
+      }
+      vector.angle += 360 / count;
     }
   }
   getDistanceFromCenter(item) {
@@ -68,60 +77,50 @@ class SymmetryHandler extends BaseHandler {
       items[i].remove();
     }
     items.splice(1);
-    item.amount = !flag ? item.amount * 2 : item.amount / 2;
-
     let center = item.symmetryCenter;
     let vector = item.bounds.center.subtract(center);
-
-    for (let i = 1; i < item.amount / 2; i++) {
-      let clone = item.clone();
-      clone.parent = this.canvas.project.activeLayer;
-      items.push(clone);
-      items[i].amount = item.amount;
-      items[i].symmetryIndex = item.symmetryIndex;
-      items[i].excludeFromExport = true;
-      items[i].symmetryCenter = item.symmetryCenter;
-      items[i].mirror = item.mirror;
-    }
-
-    for (let i = item.amount / 2; i < item.amount; i++) {
-      let clone = item.clone();
-      console.log(clone);
-      clone.getCurves().map(curve => {
-        let pointX1 = 2 * center.x - curve.getPoint1().x;
-        let pointX2 = 2 * center.x - curve.getPoint2().x;
-        curve.setPoint1(pointX1, curve.getPoint1().y);
-        curve.setPoint2(pointX2, curve.getPoint2().y);
-      })
-      clone.parent = this.canvas.project.activeLayer;
-      items.push(clone);
-      items[i].amount = item.amount;
-      items[i].symmetryIndex = item.symmetryIndex;
-      items[i].excludeFromExport = true;
-      items[i].symmetryCenter = item.symmetryCenter;
-      items[i].mirror = item.mirror;
-    }
-
-    for (let i = 0; i < items.length / 2; i++) {
-      if (items[i] !== item) {
-        // handle single
-        items[i].copyAttributes(item);
-        items[i].copyContent(item);
-        items[i].position = center.add(vector);
-        items[i].rotate((360 / items.length * 2) * i);
+    if(!flag) {
+      item.mirror = true;
+      for (let i = 1; i < item.amount * 2; i++) {
+        let clone = item.clone();
+        clone.parent = this.canvas.project.activeLayer;
+        items.push(clone);
+        items[i].amount = item.amount;
+        items[i].symmetryIndex = item.symmetryIndex;
+        items[i].excludeFromExport = true;
+        items[i].symmetryCenter = item.symmetryCenter;
+        items[i].mirror = item.mirror;
       }
-      vector.angle += 360 / items.length * 2;
+      for (let i = 0; i < items.length / 2; i++) {
+        if (items[i] !== item) {
+          // handle single
+          items[i].copyAttributes(item);
+          items[i].copyContent(item);
+          items[i].position = center.add(vector);
+          items[i].rotate((360 / items.length * 2) * i);
+        }
+        items[i + items.length / 2].copyAttributes(item);
+        items[i + items.length / 2].copyContent(item);
+        items[i + items.length / 2].position = center.add(vector);
+        items[i + items.length / 2].rotate((360 / items.length * 2) * i);
+        items[i + items.length / 2].flip();
+        items[i + items.length / 2].position.x = 2 * center.x - items[i].position.x;
+        vector.angle += 360 / items.length * 2;
+      }
+    } else {
+      item.mirror = false;
+      for (let i = 1; i < item.amount; i++) {
+        let clone = item.clone();
+        clone.parent = this.canvas.project.activeLayer;
+        items.push(clone);
+        items[i].amount = item.amount;
+        items[i].symmetryIndex = item.symmetryIndex;
+        items[i].excludeFromExport = true;
+        items[i].symmetryCenter = item.symmetryCenter;
+        items[i].mirror = item.mirror;
+      }
+      this.updateSymmetry(item);
     }
-    for (let i = items.length / 2; i < items.length; i++) {
-      items[i].copyAttributes(item);
-      items[i].copyContent(item);
-      items[i].position = vector.add(center);
-      items[i].position.x = 2 * center.x - items[i].position.x;
-      items[i].rotate((360 / items.length * 2) * i);
-      vector.angle += 360 / items.length * 2;
-    }
-    console.log("0==============>", items[0]);
-    console.log("1==============>", items[item.amount / 2]);
   }
   setSymmetrySides(item, value) {
     let items = this.symmetries[item.symmetryIndex];
@@ -137,7 +136,7 @@ class SymmetryHandler extends BaseHandler {
     }
     items.splice(1);
     item.amount = value;
-    for (let i = 1; i < item.amount; i++) {
+    for (let i = 1; i < item.amount * (item.mirror ? 2: 1); i++) {
       let clone = item.clone();
       clone.parent = this.canvas.project.activeLayer;
       items.push(clone);

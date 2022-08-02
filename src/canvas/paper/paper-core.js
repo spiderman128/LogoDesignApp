@@ -2635,6 +2635,22 @@ var Matrix = Base.extend(
       return this;
     },
 
+    flip: function () {
+      var center = Point.read(arguments, 1);
+      var a = this._a,
+        b = this._b,
+        c = this._c,
+        d = this._d;
+      if (center) this.translate(center);
+      this._a = -1 * a + 0 * c;
+      this._b = -1 * b + 0 * d;
+      this._c = 0 * a + 1 * c;
+      this._d = 0 * b + 1 * d;
+      if (center) this.translate(center.negate());
+      this._changed();
+      return this;
+    },
+
     shear: function () {
       var args = arguments,
         shear = Point.read(args),
@@ -4798,9 +4814,9 @@ var Item = Base.extend(
     },
   },
   Base.each(
-    ["rotate", "scale", "shear", "skew"],
+    ["rotate", "scale", "shear", "skew", "flip"],
     function (key) {
-      var rotate = key === "rotate";
+      var rotate = key === "rotate" || key === "flip";
       this[key] = function () {
         var args = arguments,
           value = (rotate ? Base : Point).read(args),

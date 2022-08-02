@@ -67,7 +67,7 @@ function Panel() {
   const [strokeWidthValue, setStrokeWidthValue] = useState([24]);
   const [transparencyValue, setTransparencyValue] = useState([1]);
   const [closedPath, setClosedPath] = useState(false);
-  const [flipPath, setFlipPath] = useState(true);
+  const [flipPath, setFlipPath] = useState(activeSelection && editor ? !activeSelection.mirror : true);
   useEffect(() => {
     if (activeSelection && editor) {
       setClosedPath(activeSelection.closed);
@@ -75,6 +75,7 @@ function Panel() {
       setStrokeWidthValue([activeSelection.strokeWidth * 4]);
       setSymmetrySidesValue([activeSelection.amount]);
       setTransparencyValue([activeSelection.opacity]);
+      setFlipPath(!activeSelection.mirror);
     }
   }, [editor, activeSelection, activeEditingModeHandle]);
   const setEditing = () => {
